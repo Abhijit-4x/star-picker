@@ -5,9 +5,14 @@ const StarSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  name: {
+  starName: {
     type: String,
-    required: true
+    required: true,
+    unique: true, // Ensure star names are unique
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now, // Automatically set the date when the star is created
   }
 });
 

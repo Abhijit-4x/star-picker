@@ -15,7 +15,9 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("Connected to MongoDB");
-    app.use("/api", starRoutes);
+
+    app.use("/api", starRoutes); // Use /api prefix for all routes
+
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
