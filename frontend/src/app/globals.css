@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  /* --foreground: #171717; */
+  --foreground: #AEEEEE ;
+
+  /* bg gradients */
+  --bg-gradient-left: #0D0D24;
+  --bg-gradient-mid: #1D2D3B;
+  --bg-gradient-right: #314048;
+
+  /* theme palette */
+  --primary-yellow:
+}
+
+/* right now, only one mode
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+html, body{
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-gradient-left) no-repeat;
+  background: linear-gradient(
+    135deg,
+    var(--bg-gradient-left) 0%,
+    var(--bg-gradient-mid) 55%,
+    var(--bg-gradient-right) 100%
+  );
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 36px;
+}
