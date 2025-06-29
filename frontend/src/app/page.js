@@ -1,13 +1,11 @@
 'use client'
 
 import { useState } from 'react';
-import { convertTierToString } from './utils/tierConverter';
+import StarCard from './components/StarCard/starcard';
 
 export default function Home() {
   const [star, setStar] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const starTier = convertTierToString(star?.tier);
 
   const fetchStar = async () => {
     setLoading(true);
@@ -30,7 +28,7 @@ export default function Home() {
       </button>
       {star && (
         <div className="mt-4">
-          <strong>Star Found :</strong> {starTier} {star.starName}
+          <StarCard star={star} />
         </div>
       )}
     </main>

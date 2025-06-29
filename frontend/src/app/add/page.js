@@ -30,7 +30,7 @@ export default function AddStarPage() {
         <select
           value={tier}
           onChange={(e) => setTier(e.target.value)}
-          className="p-2 border rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-2 border rounded bg-gray-700 text-white focus:outline-none "
           required
         >
           <option value="" disabled>

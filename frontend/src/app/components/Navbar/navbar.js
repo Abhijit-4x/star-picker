@@ -16,7 +16,7 @@ export default function Navbar() {
         <Link href="/audit" className="rounded-md p-2 hover:text-amber-300">
           Audit
         </Link>
-        <Link href="/audit" className="rounded-md p-2 hover:text-amber-300">
+        <Link href="/search" className="rounded-md p-2 hover:text-amber-300">
           Search
         </Link>
         {/* Add more navigation links here */}
