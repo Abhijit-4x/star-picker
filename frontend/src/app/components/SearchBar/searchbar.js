@@ -3,13 +3,11 @@ import { Search } from "lucide-react";
 export default function SearchBar({ searchKey, setSearchKey, onSearchSubmit }) {
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (onSearchSubmit) {
-      onSearchSubmit(searchKey); // TODO: Implement search functionality
-    }
-  };
+    onSearchSubmit(searchKey);
+  }
   return (
     <div className="w-[600px] max-w-[75vw]">
-      <form className="flex justify-between gap-5 border rounded  focus:ring-2 focus:ring-blue-500 ">
+      <form onSubmit={handleSubmit} className="flex justify-between gap-5 border rounded  focus:ring-2 focus:ring-blue-500 ">
         <div className="p-2">
           <input
             type="text"
@@ -19,7 +17,7 @@ export default function SearchBar({ searchKey, setSearchKey, onSearchSubmit }) {
             className="focus:outline-none"
           />
         </div>
-        <button className="w-[90px] cursor-pointer">
+        <button type="submit" className="w-[90px] cursor-pointer">
           <Search className="m-auto" size={28} />
         </button>
       </form>
