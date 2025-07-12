@@ -1,54 +1,47 @@
 "use client";
 
 import { useState } from "react";
-import { convertTierToString } from "../utils/tierConverter";
+import StarForm from "../components/StarForms/StarForm";
+import addStar from "../utils/addStar";
+import toast from "react-hot-toast";
 
 export default function AddStarPage() {
-    const [tier, setTier] = useState("");
-  const tierOptions = [
-    { value: 1, label: convertTierToString(1) }, // S+
-    { value: 2, label: convertTierToString(2) }, // S
-    { value: 3, label: convertTierToString(3) }, // A
-    { value: 4, label: convertTierToString(4) }, // B
-    { value: 5, label: convertTierToString(5) }, // C
-  ];
+
+  const [star, setStar] = useState({ starName: "", tier: 0 });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    const loadingToastId = toast.loading("Adding star..."); // Show loading toast
+    setLoading(true); // Set loading state to true
+    e.preventDefault();
+    console.log("Submitting star:", star);
+    try {
+      const response = await addStar(star);
+      const data = await response.json();
+      toast.success(`Star "${data.starName}" added successfully!`);
+      setStar({ starName: "", tier: 0 });
+    } catch (error) {
+      console.error("Error in AddStarPage handleSubmit:", error); // Log for debugging
+      if(error.statusCode === 409) {
+        // Handle conflict error (e.g., duplicate star name)
+        toast.error(`Star with name "${star.starName}" already exists.`, { id: loadingToastId });
+      } else if (error.statusCode === 400) {
+        // Handle bad request error
+        toast.error("Invalid input. Please check the star name and tier.", { id: loadingToastId });
+      } else {
+        // Handle other errors
+        toast.error(error.message || "An unknown error occurred.", { id: loadingToastId });
+      }
+    } finally {
+      setLoading(false); // Reset loading state
+      console.log("Submission attempt finished"); // Log for debugging
+    }
+  };
 
   return (
     <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px] ">
       <h1 className="text-2xl font-bold text-[1.5em]">⭐ Add a Star ⭐</h1>
-      <form className="flex flex-col gap-4">
-        <input
-          type="text"
-          placeholder="First Name"
-          className="p-2 border rounded"
-        />
-        <input
-          type="text"
-          placeholder="Last Name"
-          className="p-2 border rounded"
-        />
-        <select
-          value={tier}
-          onChange={(e) => setTier(e.target.value)}
-          className="p-2 border rounded bg-gray-700 text-white focus:outline-none "
-          required
-        >
-          <option value="" disabled>
-            Select Tier
-          </option>
-          {tierOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.value} - {option.label}
-            </option>
-          ))}
-        </select>
-        <button
-          type="submit"
-          className="text-white px-4 py-2 rounded-2xl outline-[2px] hover:bg-(--bg-gradient-left) ease-in duration-300 cursor-pointer min-w-[230px]"
-        >
-          Add Star
-        </button>
-      </form>
+      <StarForm star={star} setStar={setStar} handleSubmit={handleSubmit} />
     </main>
   );
 }

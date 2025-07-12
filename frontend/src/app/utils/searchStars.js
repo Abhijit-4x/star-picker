@@ -1,6 +1,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export async function searchStars(searchKey) {
+export default async function searchStars(searchKey) {
   const params = new URLSearchParams();
   params.append("key", searchKey);
   try {

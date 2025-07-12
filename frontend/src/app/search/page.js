@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import SearchBar from "../components/SearchBar/searchbar";
 import StarCard from "../components/StarCard/starcard";
-import { searchStars } from "../utils/searchStars";
+import  searchStars  from "../utils/searchStars";
 
 export default function SearchPage() {
   const [searchKey, setSearchKey] = useState("");
