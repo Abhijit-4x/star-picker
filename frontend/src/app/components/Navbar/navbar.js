@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function Navbar() {
   return (
@@ -11,7 +11,7 @@ export default function Navbar() {
           Add
         </Link>
         <Link href="/update" className="rounded-md p-2 hover:text-amber-300">
-          Update
+          Update {/*//TODO : Need to remove update tab, and provide edit link with search results i.e. in starcard */}
         </Link>
         <Link href="/audit" className="rounded-md p-2 hover:text-amber-300">
           Audit
