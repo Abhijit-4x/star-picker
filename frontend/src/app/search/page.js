@@ -21,14 +21,14 @@ export default function SearchPage() {
   };
   // const something = await searchStars(searchKey);
   return (
-    <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px]">
+    <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-6">
       <SearchBar
         searchKey={searchKey}
         setSearchKey={setSearchKey}
         onSearchSubmit={handleSearchSubmit} // Pass the function to handle search
       />
       {searchResults.length > 0 ? (
-        <div className="grid grid-cols-1 gap-2 overflow-auto">
+        <div className="grid grid-cols-1 gap-4 overflow-auto px-4">
           {searchResults.map((star, index) => (
             <StarCard key={index} star={star} />
           ))}
