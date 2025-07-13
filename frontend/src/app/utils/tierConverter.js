@@ -22,3 +22,20 @@ export function convertTierToString(tier) {
       return "NA";
   }
 }
+
+export function convertTierToStyle(tier) {
+  switch (tier) {
+    case 1:
+      return "border-yellow-400 text-yellow-200 outline-2 outline-yellow-500 outline-offset-4 m-y-1"; // S+
+    case 2:
+      return "border-purple-400 text-purple-200"; // S
+    case 3:
+      return "border-red-500 text-red-200"; // A
+    case 4:
+      return "border-blue-500 text-blue-200"; // B
+    case 5:
+      return "border-green-500 text-green-200"; // C
+    default:
+      return ""; // NA
+  }
+}

@@ -1,18 +1,23 @@
-import { convertTierToString } from "@/app/utils/tierConverter";
+import { convertTierToString, convertTierToStyle } from "@/app/utils/tierConverter";
 
 export default function StarCard({ star }) {
     const starName = star.starName;
-    let tier = star.tier;
-    tier = convertTierToString(tier);
+    const tier = star.tier;
+    const style = convertTierToStyle(tier);
+    const stringTier = convertTierToString(tier);
+    console.log(`StarCard: ${starName} - Tier: ${tier} - Style: ${style}`);
+    
   return (
-    <div className="flex items-center justify-around w-[800px] h-[75px] max-w-[75vw] rounded-2xl border-2 bg-(--bg-gradient-right)">
-        <p>{tier}</p>
+    <div className={`flex items-center justify-around w-[800px] h-[75px] max-w-[75vw] rounded-2xl border-4 bg-(--bg-gradient-right) ${style}`}>
+        <p>{stringTier}</p>
         <p>{starName}</p>
         <a>ED</a> 
         <a>LO</a>
-        {/* //TODO : Implement link to edit star details
+        {/*
+        //TODO : Implement link to edit star details
         //TODO : Implement link out to site 0_0
-        //TODO : Implement color functionlity based on tier, border with lighter shade + text with darker shade */}
+        //TODO : Implement delete button on star card
+        */}
     </div>
   );
 }
