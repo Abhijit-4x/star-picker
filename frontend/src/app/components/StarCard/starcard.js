@@ -39,8 +39,7 @@ export default function StarCard({ star }) {
       </button>
       <a>LO</a>
       {/*
-        //TODO : Implement link to edit star details
-        //TODO : Implement link out to site 0_0
+        //TODO : Implement move to audit button on star card
         //TODO : Implement delete button on star card
         */}
     </div>

@@ -7,6 +7,7 @@ import UpdateStarForm from "../components/StarForms/UpdateStarForm";
 import searchStars from "../utils/searchStars";
 import updateStar from "../utils/updateStar";
 import toast from "react-hot-toast";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function UpdatePage() {
   const searchParams = useSearchParams();
@@ -97,47 +98,49 @@ export default function UpdatePage() {
   };
 
   return (
-    <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[34px]">
-      <h1 className="text-2xl font-bold text-[1.5em]">Update Star</h1>
+    <ProtectedRoute>
+      <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[34px]">
+        <h1 className="text-2xl font-bold text-[1.5em]">Update Star</h1>
 
-      {!selectedStar ? (
-        <>
-          <RealtimeSearchBar
-            searchKey={searchKey}
-            setSearchKey={setSearchKey}
-            onSearchChange={handleSearchChange}
-            searchResults={searchResults}
-            onResultSelect={handleResultSelect}
-          />
-          <p className="text-gray-500">Search and select a star to update</p>
-        </>
-      ) : (
-        <>
-          <div className="text-gray-200">
-            Editing:{" "}
-            <span className="font-bold text-amber-300">
-              {selectedStar.starName}
-            </span>
-          </div>
-          {formData && (
-            <UpdateStarForm
-              star={formData}
-              setStar={setFormData}
-              handleSubmit={handleFormSubmit}
-              isLoading={isLoading}
+        {!selectedStar ? (
+          <>
+            <RealtimeSearchBar
+              searchKey={searchKey}
+              setSearchKey={setSearchKey}
+              onSearchChange={handleSearchChange}
+              searchResults={searchResults}
+              onResultSelect={handleResultSelect}
             />
-          )}
-          <button
-            onClick={() => {
-              setSelectedStar(null);
-              setFormData(null);
-            }}
-            className="text-gray-400 hover:text-gray-200 text-sm"
-          >
-            Back to search
-          </button>
-        </>
-      )}
-    </main>
+            <p className="text-gray-500">Search and select a star to update</p>
+          </>
+        ) : (
+          <>
+            <div className="text-gray-200">
+              Editing:{" "}
+              <span className="font-bold text-amber-300">
+                {selectedStar.starName}
+              </span>
+            </div>
+            {formData && (
+              <UpdateStarForm
+                star={formData}
+                setStar={setFormData}
+                handleSubmit={handleFormSubmit}
+                isLoading={isLoading}
+              />
+            )}
+            <button
+              onClick={() => {
+                setSelectedStar(null);
+                setFormData(null);
+              }}
+              className="text-gray-400 hover:text-gray-200 text-sm"
+            >
+              Back to search
+            </button>
+          </>
+        )}
+      </main>
+    </ProtectedRoute>
   );
 }

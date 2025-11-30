@@ -83,19 +83,7 @@ export default function Navbar() {
               </div>
             )}
           </div>
-        ) : (
-          <div className="flex gap-2">
-            <Link href="/login" className="rounded-md p-2 hover:text-amber-300">
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-md p-2 hover:text-amber-300"
-            >
-              Sign up
-            </Link>
-          </div>
-        )}
+        ) : null}
       </div>
     </nav>
   );

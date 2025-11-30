@@ -12,6 +12,16 @@ export async function signup({ username, email, password }) {
   return res.json();
 }
 
+export async function verifyEmail({ email, otp }) {
+  const res = await fetch(`${BACKEND_URL}/verify-email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp }),
+    credentials: "include",
+  });
+  return res.json();
+}
+
 export async function login({ login, password }) {
   const res = await fetch(`${BACKEND_URL}/login`, {
     method: "POST",

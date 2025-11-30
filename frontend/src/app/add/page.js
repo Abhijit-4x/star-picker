@@ -4,9 +4,9 @@ import { useState } from "react";
 import StarForm from "../components/StarForms/StarForm";
 import addStar from "../utils/addStar";
 import toast from "react-hot-toast";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function AddStarPage() {
-
   const [star, setStar] = useState({ starName: "", tier: 0 });
   const [loading, setLoading] = useState(false);
 
@@ -22,15 +22,21 @@ export default function AddStarPage() {
       setStar({ starName: "", tier: 0 });
     } catch (error) {
       console.error("Error in AddStarPage handleSubmit:", error); // Log for debugging
-      if(error.statusCode === 409) {
+      if (error.statusCode === 409) {
         // Handle conflict error (e.g., duplicate star name)
-        toast.error(`Star with name "${star.starName}" already exists.`, { id: loadingToastId });
+        toast.error(`Star with name "${star.starName}" already exists.`, {
+          id: loadingToastId,
+        });
       } else if (error.statusCode === 400) {
         // Handle bad request error
-        toast.error("Invalid input. Please check the star name and tier.", { id: loadingToastId });
+        toast.error("Invalid input. Please check the star name and tier.", {
+          id: loadingToastId,
+        });
       } else {
         // Handle other errors
-        toast.error(error.message || "An unknown error occurred.", { id: loadingToastId });
+        toast.error(error.message || "An unknown error occurred.", {
+          id: loadingToastId,
+        });
       }
     } finally {
       setLoading(false); // Reset loading state
@@ -39,9 +45,11 @@ export default function AddStarPage() {
   };
 
   return (
-    <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px] ">
-      <h1 className="text-2xl font-bold text-[1.5em]">⭐ Add a Star ⭐</h1>
-      <StarForm star={star} setStar={setStar} handleSubmit={handleSubmit} />
-    </main>
+    <ProtectedRoute>
+      <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px] ">
+        <h1 className="text-2xl font-bold text-[1.5em]">⭐ Add a Star ⭐</h1>
+        <StarForm star={star} setStar={setStar} handleSubmit={handleSubmit} />
+      </main>
+    </ProtectedRoute>
   );
 }

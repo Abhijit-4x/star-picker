@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema(
       trim: true,
     },
     passwordHash: { type: String, required: true },
+    isEmailVerified: { type: Boolean, default: false },
     role: { type: String, default: "user" },
   },
   { timestamps: true }
