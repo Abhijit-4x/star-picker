@@ -49,14 +49,46 @@ router.post("/star", requireAuth, async (req, res) => {
   } catch (err) {
     if (err.code === 11000 && err.keyValue && err.keyValue.starName) {
       console.error("Duplicate star name error:", err);
-      return res
-        .status(409)
-        .json({
-          message: `Star with name '${err.keyValue.starName}' already exists.`,
-        });
+      return res.status(409).json({
+        message: `Star with name '${err.keyValue.starName}' already exists.`,
+      });
     } else {
       console.error("Error adding star:", err);
       res.status(500).json({ error: "Failed to add star." });
+    }
+  }
+});
+
+// Update a star by ID (protected)
+router.put("/stars/:id", requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const { tier, starName } = req.body;
+
+  if (!tier || !starName) {
+    return res.status(400).json({ error: "Tier and Name are required." });
+  }
+
+  try {
+    const updatedStar = await Star.findByIdAndUpdate(
+      id,
+      { tier, starName },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedStar) {
+      return res.status(404).json({ error: "Star not found." });
+    }
+
+    res.json({ message: "Star updated successfully.", star: updatedStar });
+  } catch (err) {
+    if (err.code === 11000 && err.keyValue && err.keyValue.starName) {
+      console.error("Duplicate star name error:", err);
+      return res.status(409).json({
+        message: `Star with name '${err.keyValue.starName}' already exists.`,
+      });
+    } else {
+      console.error("Error updating star:", err);
+      res.status(500).json({ error: "Failed to update star." });
     }
   }
 });
