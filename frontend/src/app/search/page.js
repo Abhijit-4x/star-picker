@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import SearchBar from "../components/SearchBar/searchbar";
 import StarCard from "../components/StarCard/starcard";
-import  searchStars  from "../utils/searchStars";
+import searchStars from "../utils/searchStars";
 
 export default function SearchPage() {
   const [searchKey, setSearchKey] = useState("");
@@ -21,14 +21,14 @@ export default function SearchPage() {
   };
   // const something = await searchStars(searchKey);
   return (
-    <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-6">
+    <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[34px]">
       <SearchBar
         searchKey={searchKey}
         setSearchKey={setSearchKey}
         onSearchSubmit={handleSearchSubmit} // Pass the function to handle search
       />
       {searchResults.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 overflow-auto px-4">
+        <div className="grid grid-cols-1 gap-4 overflow-auto px-4 pt-4">
           {searchResults.map((star, index) => (
             <StarCard key={index} star={star} />
           ))}
