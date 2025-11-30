@@ -2,6 +2,12 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default async function searchStars(searchKey) {
   const params = new URLSearchParams();
+  if (searchKey === "" || searchKey === undefined) {
+    console.log(
+      "searchStars called with empty searchKey, returning empty array"
+    );
+    return []; // Return an empty array if searchKey is empty
+  }
   params.append("key", searchKey);
   try {
     // Construct the URL with the search query parameter
