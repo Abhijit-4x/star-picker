@@ -26,7 +26,7 @@ export function convertTierToString(tier) {
 export function convertTierToStyle(tier) {
   switch (tier) {
     case 1:
-      return "border-yellow-400 text-yellow-200 outline-2 outline-yellow-500 outline-offset-4 my-1"; // S+
+      return "border-yellow-400 text-yellow-200 outline outline-2 outline-yellow-500 outline-offset-4 my-2"; // S+
     case 2:
       return "border-purple-400 text-purple-200"; // S
     case 3:

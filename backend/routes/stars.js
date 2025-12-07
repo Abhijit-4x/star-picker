@@ -93,6 +93,24 @@ router.put("/stars/:id", requireAuth, async (req, res) => {
   }
 });
 
+// Delete a star by ID (protected)
+router.delete("/stars/:id", requireAuth, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedStar = await Star.findByIdAndDelete(id);
+
+    if (!deletedStar) {
+      return res.status(404).json({ error: "Star not found." });
+    }
+
+    res.json({ message: "Star deleted successfully.", star: deletedStar });
+  } catch (err) {
+    console.error("Error deleting star:", err);
+    res.status(500).json({ error: "Failed to delete star." });
+  }
+});
+
 // Upload stars in bulk from array (protected)
 router.post("/bulk-upload-stars", requireAuth, async (req, res) => {
   const starArray = req.body;

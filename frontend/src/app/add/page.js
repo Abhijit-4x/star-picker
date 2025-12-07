@@ -4,7 +4,7 @@ import { useState } from "react";
 import StarForm from "../components/StarForms/StarForm";
 import addStar from "../utils/addStar";
 import toast from "react-hot-toast";
-import ProtectedRoute from "../components/ProtectedRoute";
+import RoleProtectedRoute from "../components/RoleProtectedRoute";
 
 export default function AddStarPage() {
   const [star, setStar] = useState({ starName: "", tier: 0 });
@@ -16,8 +16,8 @@ export default function AddStarPage() {
     e.preventDefault();
     console.log("Submitting star:", star);
     try {
-      const response = await addStar(star);
-      const data = await response.json();
+      const data = await addStar(star);
+      toast.dismiss(loadingToastId);
       toast.success(`Star "${data.starName}" added successfully!`);
       setStar({ starName: "", tier: 0 });
     } catch (error) {
@@ -45,11 +45,11 @@ export default function AddStarPage() {
   };
 
   return (
-    <ProtectedRoute>
+    <RoleProtectedRoute requiredRole="admin">
       <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px] ">
         <h1 className="text-2xl font-bold text-[1.5em]">⭐ Add a Star ⭐</h1>
         <StarForm star={star} setStar={setStar} handleSubmit={handleSubmit} />
       </main>
-    </ProtectedRoute>
+    </RoleProtectedRoute>
   );
 }

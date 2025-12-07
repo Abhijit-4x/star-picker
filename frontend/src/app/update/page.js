@@ -7,7 +7,7 @@ import UpdateStarForm from "../components/StarForms/UpdateStarForm";
 import searchStars from "../utils/searchStars";
 import updateStar from "../utils/updateStar";
 import toast from "react-hot-toast";
-import ProtectedRoute from "../components/ProtectedRoute";
+import RoleProtectedRoute from "../components/RoleProtectedRoute";
 
 export default function UpdatePage() {
   const searchParams = useSearchParams();
@@ -98,7 +98,7 @@ export default function UpdatePage() {
   };
 
   return (
-    <ProtectedRoute>
+    <RoleProtectedRoute requiredRole="admin">
       <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[34px]">
         <h1 className="text-2xl font-bold text-[1.5em]">Update Star</h1>
 
@@ -141,6 +141,6 @@ export default function UpdatePage() {
           </>
         )}
       </main>
-    </ProtectedRoute>
+    </RoleProtectedRoute>
   );
 }

@@ -27,7 +27,5 @@ const EmailVerificationSchema = new mongoose.Schema(
   { timestamps: false } // We don't need updatedAt for this model
 );
 
-// Create TTL index to automatically delete expired documents
-EmailVerificationSchema.index({ createdAt: 1 }, { expireAfterSeconds: 600 });
-
+// TTL index is declared in the schema with expires property, no need for duplicate
 module.exports = mongoose.model("EmailVerification", EmailVerificationSchema);

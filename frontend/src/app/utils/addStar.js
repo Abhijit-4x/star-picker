@@ -21,6 +21,7 @@ export default async function addStar(star) {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify(star),
     });
     if (!response.ok) {

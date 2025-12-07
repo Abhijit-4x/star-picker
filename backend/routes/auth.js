@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const EmailVerification = require("../models/EmailVerification");
 const { requireAuth } = require("../middleware/authMiddleware");
+const { sendOtpEmail } = require("../services/emailService");
 require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "change_this_secret";
@@ -53,18 +54,31 @@ router.post("/signup", async (req, res) => {
     });
     await user.save();
 
-    // Generate OTP and store in EmailVerification collection
+    // Generate OTP and store in EmailVerification collection (keep only latest)
     const otp = generateOtp();
-    const emailVerification = new EmailVerification({
-      userId: user._id,
-      email: email,
-      otp: otp,
-    });
-    await emailVerification.save();
+    await EmailVerification.updateOne(
+      { userId: user._id },
+      {
+        userId: user._id,
+        email: email.toLowerCase(),
+        otp: otp,
+        createdAt: new Date(),
+      },
+      { upsert: true }
+    );
 
-    // TODO: Send OTP via email (configure email service like nodemailer)
-    // For now, log OTP (remove in production)
-    console.log(`OTP for ${email}: ${otp}`);
+    // Send OTP via email
+    try {
+      await sendOtpEmail(email, otp);
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      // Delete the user and email verification record if email sending fails
+      await User.deleteOne({ _id: user._id });
+      await EmailVerification.deleteOne({ _id: emailVerification._id });
+      return res.status(500).json({
+        error: "Failed to send verification email. Please try again.",
+      });
+    }
 
     res.status(201).json({
       message: "User registered. Please verify your email with the OTP sent.",
@@ -126,7 +140,12 @@ router.post("/verify-email", async (req, res) => {
 
     res.json({
       message: "Email verified successfully",
-      user: { id: user._id, username: user.username, email: user.email },
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     console.error("Email verification error:", err);
@@ -146,13 +165,16 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne(query);
     if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
-    if (!user.isEmailVerified)
-      return res
-        .status(403)
-        .json({ error: "Please verify your email before logging in" });
-
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) return res.status(401).json({ error: "Invalid credentials" });
+
+    // Check if email is verified
+    if (!user.isEmailVerified)
+      return res.status(403).json({
+        error: "Email not verified",
+        requiresVerification: true,
+        email: user.email,
+      });
 
     const token = jwt.sign(
       { id: user._id, username: user.username },
@@ -167,10 +189,60 @@ router.post("/login", async (req, res) => {
     });
     res.json({
       message: "Logged in",
-      user: { id: user._id, username: user.username, email: user.email },
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     console.error("Login error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Resend OTP to user's email
+router.post("/resend-otp", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    if (user.isEmailVerified)
+      return res.status(400).json({ error: "Email already verified" });
+
+    // Generate new OTP (keep only latest - upsert)
+    const otp = generateOtp();
+    await EmailVerification.updateOne(
+      { userId: user._id },
+      {
+        userId: user._id,
+        email: email.toLowerCase(),
+        otp: otp,
+        createdAt: new Date(),
+      },
+      { upsert: true }
+    );
+
+    // Send OTP via email
+    try {
+      await sendOtpEmail(email, otp);
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+      return res.status(500).json({
+        error: "Failed to send verification email. Please try again.",
+      });
+    }
+
+    res.json({
+      message: "OTP resent successfully. Check your email.",
+      email: email,
+    });
+  } catch (err) {
+    console.error("Resend OTP error:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -20,6 +20,7 @@ export default function SignupPage() {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingResend, setIsLoadingResend] = useState(false);
   const router = useRouter();
 
   async function handleSignup(e) {
@@ -82,6 +83,33 @@ export default function SignupPage() {
     }
   }
 
+  async function handleResendOtp() {
+    setIsLoadingResend(true);
+    const toastId = toast.loading("Resending OTP...");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/resend-otp`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        toast.success("OTP sent to your email", { id: toastId });
+        setError(null);
+      } else {
+        toast.error(data.error || "Failed to resend OTP", { id: toastId });
+      }
+    } catch (err) {
+      toast.error("Failed to resend OTP", { id: toastId });
+    } finally {
+      setIsLoadingResend(false);
+    }
+  }
+
   return (
     <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px]">
       <h1 className="text-2xl font-bold text-[1.5em]">Sign Up</h1>
@@ -117,11 +145,23 @@ export default function SignupPage() {
             {isLoading ? "Creating..." : "Sign up"}
           </button>
           {error && <div className="text-red-400 text-center">{error}</div>}
+          <div className="text-gray-400 text-center">
+            Already have an account?{" "}
+            <a
+              href="/login"
+              className="text-amber-300 hover:text-amber-200 font-bold"
+            >
+              Login here
+            </a>
+          </div>
         </form>
       ) : (
         <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
           <p className="text-gray-300">Enter the 6-digit OTP sent to:</p>
           <p className="text-amber-300 font-bold text-center">{email}</p>
+          <p className="text-gray-400 text-sm text-center">
+            OTP expires in 10 minutes
+          </p>
           <input
             value={otp}
             onChange={(e) =>
@@ -137,6 +177,14 @@ export default function SignupPage() {
             className="text-white px-4 py-2 rounded-2xl outline-[2px] hover:bg-(--bg-gradient-left) ease-in duration-300 cursor-pointer min-w-[230px] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? "Verifying..." : "Verify Email"}
+          </button>
+          <button
+            type="button"
+            onClick={handleResendOtp}
+            disabled={isLoadingResend}
+            className="text-amber-300 hover:text-amber-200 text-sm disabled:opacity-50"
+          >
+            {isLoadingResend ? "Resending..." : "Didn't receive OTP? Resend"}
           </button>
           <button
             type="button"
