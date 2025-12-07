@@ -11,14 +11,15 @@ export default function AddStarPage() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     const loadingToastId = toast.loading("Adding star..."); // Show loading toast
     setLoading(true); // Set loading state to true
-    e.preventDefault();
     console.log("Submitting star:", star);
     try {
       const data = await addStar(star);
-      toast.dismiss(loadingToastId);
-      toast.success(`Star "${data.starName}" added successfully!`);
+      toast.success(`Star "${data.star.starName}" added successfully!`, {
+        id: loadingToastId,
+      });
       setStar({ starName: "", tier: 0 });
     } catch (error) {
       console.error("Error in AddStarPage handleSubmit:", error); // Log for debugging

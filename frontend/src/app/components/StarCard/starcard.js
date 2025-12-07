@@ -111,21 +111,21 @@ export default function StarCard({ star, onDelete }) {
             <h3 className="text-xl font-bold text-white mb-4">
               {CONFIRM_MESSAGES.DELETE_STAR_TITLE}
             </h3>
-            <p className="text-gray-300 mb-6">{CONFIRM_MESSAGES.DELETE_STAR}</p>
+            <p className="text-sm text-gray-300 mb-6">{CONFIRM_MESSAGES.DELETE_STAR}</p>
             <p className="text-amber-300 font-bold mb-6 text-center">
               "{starName}"
             </p>
             <div className="flex gap-4 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white transition-colors"
+                className="px-3 py-1.5 text-sm rounded-lg bg-gray-600 hover:bg-gray-500 text-white transition-colors cursor-pointer"
                 disabled={isDeleting}
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteConfirm}
-                className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors disabled:opacity-50"
+                className="px-3 py-1.5 text-sm rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors cursor-pointer disabled:opacity-50"
                 disabled={isDeleting}
               >
                 {isDeleting ? "Deleting..." : "Delete"}
