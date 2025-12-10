@@ -51,19 +51,19 @@ export default function Navbar() {
         StarPicker
       </Link>
       <div className="flex gap-[20px] items-center">
+        <Link href="/add" className="rounded-md p-2 hover:text-amber-300">
+          Add
+        </Link>
+        <Link href="/audit" className="rounded-md p-2 hover:text-amber-300">
+          Audit
+        </Link>
         {user?.role === "admin" && (
           <>
-            <Link href="/add" className="rounded-md p-2 hover:text-amber-300">
-              Add
-            </Link>
             <Link
               href="/update"
               className="rounded-md p-2 hover:text-amber-300"
             >
               Update
-            </Link>
-            <Link href="/audit" className="rounded-md p-2 hover:text-amber-300">
-              Audit
             </Link>
           </>
         )}

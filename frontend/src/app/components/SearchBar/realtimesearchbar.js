@@ -92,3 +92,5 @@ export default function RealtimeSearchBar({
     </div>
   );
 }
+
+//TODO: Add filter/fetch by tier functionality

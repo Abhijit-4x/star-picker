@@ -23,7 +23,7 @@ export default function Home() {
 
   return (
     <ProtectedRoute>
-      <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px] ">
+      <main className="flex flex-col items-center pt-[80px] h-[80vh] gap-[40px] ">
         <h1 className="text-2xl font-bold text-[1.5em]">
           ⭐ Welcome to Star Picker ⭐
         </h1>

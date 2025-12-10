@@ -111,7 +111,7 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px]">
+    <main className="flex flex-col items-center pt-[80px] h-[80vh] gap-[40px]">
       <h1 className="text-2xl font-bold text-[1.5em]">Sign Up</h1>
 
       {step === 1 ? (

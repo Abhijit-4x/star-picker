@@ -22,7 +22,7 @@ export default function SearchPage() {
 
   return (
     <ProtectedRoute>
-      <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[34px]">
+      <main className="flex flex-col items-center pt-[80px] h-[80vh] gap-[34px]">
         <SearchBar
           searchKey={searchKey}
           setSearchKey={setSearchKey}
@@ -34,7 +34,7 @@ export default function SearchPage() {
               <StarCard
                 key={star._id}
                 star={star}
-                onRemove={handleRemoveStar}
+                onDelete={handleRemoveStar}
               />
             ))}
           </div>

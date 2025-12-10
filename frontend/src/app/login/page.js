@@ -99,7 +99,7 @@ export default function LoginPage() {
 
   if (requiresVerification) {
     return (
-      <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px]">
+      <main className="flex flex-col items-center pt-[80px] h-[80vh] gap-[40px]">
         <h1 className="text-2xl font-bold text-[1.5em]">Verify Email</h1>
         <div className="flex flex-col gap-4">
           <p className="text-gray-300 text-center">
@@ -157,7 +157,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex flex-col items-center pt-[100px] h-[80vh] gap-[40px]">
+    <main className="flex flex-col items-center pt-[80px] h-[80vh] gap-[40px]">
       <h1 className="text-2xl font-bold text-[1.5em]">Login</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input

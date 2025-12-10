@@ -1,14 +1,7 @@
 import { convertTierToString } from "@/app/utils/tierConverter";
+import { TIER_OPTIONS } from "@/app/constants/tierOptions";
 
 export default function StarForm({ star, setStar, handleSubmit }) {
-  const tierOptions = [
-    { value: 1, label: convertTierToString(1) }, // S+
-    { value: 2, label: convertTierToString(2) }, // S
-    { value: 3, label: convertTierToString(3) }, // A
-    { value: 4, label: convertTierToString(4) }, // B
-    { value: 5, label: convertTierToString(5) }, // C
-  ];
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setStar((prevStar) => ({
@@ -40,7 +33,7 @@ export default function StarForm({ star, setStar, handleSubmit }) {
         <option value={0} disabled>
           Select Tier
         </option>
-        {tierOptions.map((option) => (
+        {TIER_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
             {option.value} - {option.label}
           </option>

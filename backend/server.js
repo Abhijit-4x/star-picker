@@ -14,6 +14,7 @@ app.use(express.json());
 
 const authRoutes = require("./routes/auth");
 const starRoutes = require("./routes/stars");
+const auditRoutes = require("./routes/audit");
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -22,6 +23,7 @@ mongoose
 
     app.use("/api", authRoutes);
     app.use("/api", starRoutes); // Use /api prefix for all routes
+    app.use("/api", auditRoutes); // Use /api prefix for audit routes
 
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
