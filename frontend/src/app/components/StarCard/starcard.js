@@ -167,7 +167,7 @@ export default function StarCard({ star, onDelete }) {
               {CONFIRM_MESSAGES.DELETE_STAR}
             </p>
             <p className="text-amber-300 font-bold mb-6 text-center">
-              "{starName}"
+              &quot;{starName}&quot;
             </p>
             <div className="flex gap-4 justify-end">
               <button
@@ -194,7 +194,7 @@ export default function StarCard({ star, onDelete }) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-slate-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <h3 className="text-xl font-bold text-white mb-4">
-              Send "{starName}" to Audit
+              Send &quot;{starName}&quot; to Audit
             </h3>
 
             <div className="mb-4">

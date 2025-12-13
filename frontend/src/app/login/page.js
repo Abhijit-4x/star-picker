@@ -179,7 +179,7 @@ export default function LoginPage() {
         {error && <div className="text-red-400 text-center">{error}</div>}
       </form>
       <div className="text-gray-400">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link
           href="/signup"
           className="text-amber-300 hover:text-amber-200 font-bold"
