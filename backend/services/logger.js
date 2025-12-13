@@ -48,21 +48,19 @@ const logger = winston.createLogger({
   transports: transports,
 });
 
-// Add console transport in development
-if (process.env.NODE_ENV !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.printf(
-          ({ timestamp, level, message, ...meta }) =>
-            `${timestamp} [${level}]: ${message} ${
-              Object.keys(meta).length > 0 ? JSON.stringify(meta, null, 2) : ""
-            }`
-        )
-      ),
-    })
-  );
-}
+// Always add console transport (necessary for Railway and container logs)
+logger.add(
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.printf(
+        ({ timestamp, level, message, ...meta }) =>
+          `${timestamp} [${level}]: ${message} ${
+            Object.keys(meta).length > 0 ? JSON.stringify(meta, null, 2) : ""
+          }`
+      )
+    ),
+  })
+);
 
 module.exports = logger;
