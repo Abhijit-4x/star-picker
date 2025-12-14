@@ -1,11 +1,39 @@
 const winston = require("winston");
 const path = require("path");
-
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, "../logs");
 const fs = require("fs");
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir);
+
+// Create logs directory if it doesn't exist (fail silently on read-only filesystems)
+const logsDir = path.join(__dirname, "../logs");
+let logsAvailable = true;
+
+try {
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+} catch (err) {
+  console.warn(
+    "Warning: Could not create logs directory. Logging to console only."
+  );
+  logsAvailable = false;
+}
+
+const transports = [];
+
+// Only add file transports if logs directory is available
+if (logsAvailable) {
+  transports.push(
+    new winston.transports.File({
+      filename: path.join(logsDir, "error.log"),
+      level: "error",
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    }),
+    new winston.transports.File({
+      filename: path.join(logsDir, "combined.log"),
+      maxsize: 5242880, // 5MB
+      maxFiles: 5,
+    })
+  );
 }
 
 const logger = winston.createLogger({
@@ -17,38 +45,22 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   defaultMeta: { service: "star-picker-api" },
-  transports: [
-    // Error logs
-    new winston.transports.File({
-      filename: path.join(logsDir, "error.log"),
-      level: "error",
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-    // All logs
-    new winston.transports.File({
-      filename: path.join(logsDir, "combined.log"),
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-  ],
+  transports: transports,
 });
 
-// Add console transport in development
-if (process.env.NODE_ENV !== "production") {
-  logger.add(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.printf(
-          ({ timestamp, level, message, ...meta }) =>
-            `${timestamp} [${level}]: ${message} ${
-              Object.keys(meta).length > 0 ? JSON.stringify(meta, null, 2) : ""
-            }`
-        )
-      ),
-    })
-  );
-}
+// Always add console transport (necessary for Railway and container logs)
+logger.add(
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.printf(
+        ({ timestamp, level, message, ...meta }) =>
+          `${timestamp} [${level}]: ${message} ${
+            Object.keys(meta).length > 0 ? JSON.stringify(meta, null, 2) : ""
+          }`
+      )
+    ),
+  })
+);
 
 module.exports = logger;

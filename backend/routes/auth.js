@@ -45,6 +45,27 @@ const otpLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Cookie options: sameSite: "none" requires secure: true
+// In production: secure: true, sameSite: "none" (cross-site)
+// In development: secure: false, sameSite: "lax" (same-site)
+const getCookieOptions = () => {
+  if (process.env.NODE_ENV === "production") {
+    return {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+    };
+  } else {
+    return {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+    };
+  }
+};
+
 // Generate a 6-digit OTP
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
@@ -75,11 +96,9 @@ router.post(
       });
       if (existingUser) {
         logger.warn(`Signup attempt with existing user: ${email}`);
-        return res
-          .status(409)
-          .json({
-            error: "User with provided email or username already exists",
-          });
+        return res.status(409).json({
+          error: "User with provided email or username already exists",
+        });
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
@@ -184,12 +203,7 @@ router.post(
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
       );
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 1 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie("token", token, getCookieOptions());
 
       logger.info(`Email verified successfully: ${email}`);
       res.json({
@@ -245,12 +259,7 @@ router.post(
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
       );
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 1 * 24 * 60 * 60 * 1000,
-      });
+      res.cookie("token", token, getCookieOptions());
       logger.info(`User logged in: ${user.username}`);
       res.json({
         message: "Logged in",
@@ -326,7 +335,7 @@ router.post(
 );
 
 router.post("/logout", (req, res) => {
-  res.clearCookie("token", { httpOnly: true, sameSite: "lax" });
+  res.clearCookie("token", getCookieOptions());
   res.json({ message: "Logged out" });
 });
 

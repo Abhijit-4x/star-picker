@@ -14,6 +14,7 @@ export default function Home() {
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/random-star`,
       {
         method: "GET",
+        credentials: "include",
       }
     );
     const data = await res.json();
