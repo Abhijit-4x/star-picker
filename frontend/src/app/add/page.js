@@ -6,6 +6,7 @@ import AuditForm from "../components/StarForms/AuditForm";
 import addStar from "../utils/addStar";
 import submitAudit from "../utils/submitAudit";
 import { getCurrentUser } from "../utils/auth";
+import { getErrorMessage } from "../utils/errorHandler";
 import toast from "react-hot-toast";
 import ProtectedRoute from "../components/ProtectedRoute";
 
@@ -47,11 +48,16 @@ export default function AddStarPage() {
           id: loadingToastId,
         });
       } else if (error.statusCode === 400) {
-        toast.error("Invalid input. Please check the star name and tier.", {
-          id: loadingToastId,
-        });
+        const errorMessage = getErrorMessage(error.data || {});
+        toast.error(
+          errorMessage || "Invalid input. Please check the star name and tier.",
+          {
+            id: loadingToastId,
+          }
+        );
       } else {
-        toast.error(error.message || "An unknown error occurred.", {
+        const errorMessage = getErrorMessage(error.data || {});
+        toast.error(errorMessage || "An unknown error occurred.", {
           id: loadingToastId,
         });
       }
@@ -75,7 +81,8 @@ export default function AddStarPage() {
       setStar({ starName: "", tier: 0 });
     } catch (error) {
       console.error("Error in handleAuditSubmit:", error);
-      toast.error(error.message || "Failed to submit audit.", {
+      const errorMessage = getErrorMessage(error.data || {});
+      toast.error(errorMessage || error.message || "Failed to submit audit.", {
         id: loadingToastId,
       });
     } finally {

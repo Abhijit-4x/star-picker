@@ -6,6 +6,7 @@ import RealtimeSearchBar from "../components/SearchBar/realtimesearchbar";
 import UpdateStarForm from "../components/StarForms/UpdateStarForm";
 import searchStars from "../utils/searchStars";
 import updateStar from "../utils/updateStar";
+import { getErrorMessage } from "../utils/errorHandler";
 import toast from "react-hot-toast";
 
 export default function UpdatePageContent() {
@@ -83,11 +84,16 @@ export default function UpdatePageContent() {
           id: loadingToastId,
         });
       } else if (error.statusCode === 400) {
-        toast.error("Invalid input. Please check the star name and tier.", {
-          id: loadingToastId,
-        });
+        const errorMessage = getErrorMessage(error.data || {});
+        toast.error(
+          errorMessage || "Invalid input. Please check the star name and tier.",
+          {
+            id: loadingToastId,
+          }
+        );
       } else {
-        toast.error(error.message || "An error occurred while updating.", {
+        const errorMessage = getErrorMessage(error.data || {});
+        toast.error(errorMessage || "An error occurred while updating.", {
           id: loadingToastId,
         });
       }
