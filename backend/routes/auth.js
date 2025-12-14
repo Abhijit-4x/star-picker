@@ -75,11 +75,9 @@ router.post(
       });
       if (existingUser) {
         logger.warn(`Signup attempt with existing user: ${email}`);
-        return res
-          .status(409)
-          .json({
-            error: "User with provided email or username already exists",
-          });
+        return res.status(409).json({
+          error: "User with provided email or username already exists",
+        });
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
@@ -187,7 +185,7 @@ router.post(
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 1 * 24 * 60 * 60 * 1000,
       });
 
@@ -248,7 +246,7 @@ router.post(
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
         maxAge: 1 * 24 * 60 * 60 * 1000,
       });
       logger.info(`User logged in: ${user.username}`);
@@ -326,7 +324,7 @@ router.post(
 );
 
 router.post("/logout", (req, res) => {
-  res.clearCookie("token", { httpOnly: true, sameSite: "lax" });
+  res.clearCookie("token", { httpOnly: true, sameSite: "none" });
   res.json({ message: "Logged out" });
 });
 
