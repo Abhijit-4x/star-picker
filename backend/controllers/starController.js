@@ -33,10 +33,13 @@ const uploadStarsFromFile = async (req, res) => {
             successFullUploads.push(newStar);
           } catch (err) {
             if (err.code === 11000 && err.keyValue && err.keyValue.starName) {
-              console.error("Document with the same name exists : ", newStar.starName);
+              console.error(
+                "Document with the same name exists : ",
+                newStar.starName
+              );
               failedUploads.push({
                 starName: starData.starName,
-                error: `Star with name '${err.keyValue.starName}' already exists.`
+                error: `Star with name '${err.keyValue.starName}' already exists.`,
               });
             }
           }
@@ -44,8 +47,8 @@ const uploadStarsFromFile = async (req, res) => {
         fs.unlinkSync(filePath); // cleanup
         res.json({
           successfulUploads: successFullUploads,
-          failedUploads: failedUploads
-         });
+          failedUploads: failedUploads,
+        });
       } catch (err) {
         res.status(500).json({ error: "Failed to insert stars", details: err });
       }
@@ -55,39 +58,55 @@ const uploadStarsFromFile = async (req, res) => {
     });
 };
 
-// function to get a random star
+// function to get a random star (user-specific cache)
 const getRandomStar = async (req, res) => {
-  const totalStarsCount = await Star.countDocuments();
-  const MAX_CACHE_SIZE = Math.floor(totalStarsCount * 0.8); // Define how many recent star IDs to cache
+  try {
+    const userId = req.user.id; // Get user ID from auth middleware
+    const totalStarsCount = await Star.countDocuments();
+    const MAX_CACHE_SIZE = Math.floor(totalStarsCount * 0.8); // Define how many recent star IDs to cache
 
-  let starCache = await StarCache.findOneAndUpdate(
-    { _id: 'recentStarsCache' },
-    { $setOnInsert: { recentStarIds: [] } }, // Initialize if inserting
-    { upsert: true, new: true, setDefaultsOnInsert: true } // Create if not found, return new doc
-  );
+    // Get or create user's cache
+    let starCache = await StarCache.findOneAndUpdate(
+      { userId: userId },
+      { $setOnInsert: { recentStarIds: [] } }, // Initialize if inserting
+      { upsert: true, new: true, setDefaultsOnInsert: true } // Create if not found, return new doc
+    );
 
-  let recentStarIds = starCache.recentStarIds || [];
-  let randomStar = null;
-  const availableStarsCount = await Star.countDocuments({
-    _id: { $nin: recentStarIds }  
-  });
+    let recentStarIds = starCache.recentStarIds || [];
+    let randomStar = null;
+    const availableStarsCount = await Star.countDocuments({
+      _id: { $nin: recentStarIds },
+    });
 
-  const randomNum = Math.floor(Math.random() * availableStarsCount);
+    const randomNum = Math.floor(Math.random() * availableStarsCount);
 
-  randomStar = await Star.findOne({
-      _id: { $nin: recentStarIds } // Filters out recent stars
-  }).skip(randomNum); // Skips 'random' number of documents from the filtered set
-  
-  recentStarIds.push(randomStar._id); // Add the new star ID to the cache
-  if (recentStarIds.length > MAX_CACHE_SIZE) {
-    recentStarIds.shift(); // Remove the oldest ID if cache exceeds size
+    randomStar = await Star.findOne({
+      _id: { $nin: recentStarIds }, // Filters out recent stars
+    }).skip(randomNum); // Skips 'random' number of documents from the filtered set
+
+    if (!randomStar) {
+      // If no star found (cache exhausted), reset cache and get a random star
+      starCache.recentStarIds = [];
+      recentStarIds = [];
+      randomStar = await Star.findOne().skip(
+        Math.floor(Math.random() * totalStarsCount)
+      );
+    }
+
+    recentStarIds.push(randomStar._id); // Add the new star ID to the cache
+    if (recentStarIds.length > MAX_CACHE_SIZE) {
+      recentStarIds.shift(); // Remove the oldest ID if cache exceeds size
+    }
+
+    starCache.recentStarIds = recentStarIds;
+    starCache.updatedAt = new Date();
+    await starCache.save();
+
+    res.json(randomStar);
+  } catch (err) {
+    console.error("Error getting random star:", err);
+    res.status(500).json({ error: "Failed to get random star" });
   }
-
-  starCache.recentStarIds = recentStarIds;
-  starCache.updatedAt = new Date();
-  await starCache.save();
-
-  res.json(randomStar);
-}
+};
 
 module.exports = { uploadStarsFromFile, getRandomStar };
