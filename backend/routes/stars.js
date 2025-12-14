@@ -7,6 +7,7 @@ const {
   getRandomStar,
 } = require("../controllers/starController");
 const { requireAuth } = require("../middleware/authMiddleware");
+const { validationErrorSingle } = require("../utils/errorResponses");
 
 // Get all stars
 router.get("/stars", async (req, res) => {
@@ -40,7 +41,9 @@ router.get("/stars/search", async (req, res) => {
 router.post("/star", requireAuth, async (req, res) => {
   const { tier, starName } = req.body;
   if (!tier || !starName) {
-    return res.status(400).json({ error: "Tier and Name are required." });
+    return res
+      .status(400)
+      .json(validationErrorSingle("Tier and Name are required."));
   }
   const newStar = new Star({ tier, starName });
   try {
@@ -65,7 +68,9 @@ router.put("/stars/:id", requireAuth, async (req, res) => {
   const { tier, starName } = req.body;
 
   if (!tier || !starName) {
-    return res.status(400).json({ error: "Tier and Name are required." });
+    return res
+      .status(400)
+      .json(validationErrorSingle("Tier and Name are required."));
   }
 
   try {

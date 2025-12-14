@@ -2,15 +2,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signup, verifyEmail } from "../utils/auth";
+import { getErrorMessage } from "../utils/errorHandler";
+import { validateSignupForm, validateEmailDomain } from "../utils/validation";
 import toast from "react-hot-toast";
-
-function validateEmailDomain(email) {
-  const lower = (email || "").toLowerCase();
-  return (
-    /@gmail\.com$/.test(lower) ||
-    /@(outlook|hotmail|live|microsoft)\.com$/.test(lower)
-  );
-}
 
 export default function SignupPage() {
   const [step, setStep] = useState(1); // Step 1: Register, Step 2: Verify OTP
@@ -27,6 +21,14 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
 
+    // Client-side validation
+    const validation = validateSignupForm(username, email, password);
+    if (!validation.isValid) {
+      const errorMessage = validation.errors.join("\n");
+      setError(errorMessage);
+      return;
+    }
+
     if (!validateEmailDomain(email))
       return setError("Email must be a Gmail or Microsoft email");
 
@@ -39,8 +41,9 @@ export default function SignupPage() {
         toast.success("Check your email for OTP", { id: loadingToastId });
         setStep(2); // Move to OTP verification step
       } else {
-        toast.error(res.error || "Signup failed", { id: loadingToastId });
-        setError(res.error || "Signup failed");
+        const errorMessage = getErrorMessage(res);
+        toast.error(errorMessage, { id: loadingToastId });
+        setError(errorMessage);
       }
     } catch (err) {
       console.error("Signup error:", err);
@@ -144,7 +147,12 @@ export default function SignupPage() {
           >
             {isLoading ? "Creating..." : "Sign up"}
           </button>
-          {error && <div className="text-red-400 text-center">{error}</div>}
+          {error && (
+            <div className="text-red-400 text-center text-sm min-h-[80px] flex items-center justify-center whitespace-pre-line">
+              {error}
+            </div>
+          )}
+          {!error && <div className="min-h-[80px]"></div>}
           <div className="text-gray-400 text-center">
             Already have an account?{" "}
             <a
@@ -178,6 +186,12 @@ export default function SignupPage() {
           >
             {isLoading ? "Verifying..." : "Verify Email"}
           </button>
+          {error && (
+            <div className="text-red-400 text-center text-sm min-h-[60px] flex items-center justify-center whitespace-pre-line">
+              {error}
+            </div>
+          )}
+          {!error && <div className="min-h-[60px]"></div>}
           <button
             type="button"
             onClick={handleResendOtp}
@@ -197,7 +211,6 @@ export default function SignupPage() {
           >
             Back to signup
           </button>
-          {error && <div className="text-red-400 text-center">{error}</div>}
         </form>
       )}
     </main>
