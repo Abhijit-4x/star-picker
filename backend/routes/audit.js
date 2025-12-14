@@ -3,6 +3,10 @@ const router = express.Router();
 const Audit = require("../models/Audit");
 const Star = require("../models/Star");
 const { requireAuth } = require("../middleware/authMiddleware");
+const {
+  validationError,
+  validationErrorSingle,
+} = require("../utils/errorResponses");
 
 // Submit new or existing star for audit
 router.post("/audit", requireAuth, async (req, res) => {
@@ -11,37 +15,49 @@ router.post("/audit", requireAuth, async (req, res) => {
 
   // Validate required fields
   if (!auditType || !starName || !tier) {
-    return res.status(400).json({
-      error: "auditType, starName, and tier are required.",
-    });
+    return res
+      .status(400)
+      .json(
+        validationErrorSingle("auditType, starName, and tier are required.")
+      );
   }
 
   // Validate auditType
   if (!["create", "update", "delete"].includes(auditType)) {
-    return res.status(400).json({
-      error: "auditType must be one of: create, update, delete",
-    });
+    return res
+      .status(400)
+      .json(
+        validationErrorSingle(
+          "auditType must be one of: create, update, delete"
+        )
+      );
   }
 
   // Validate tier
   if (tier < 1 || tier > 5) {
-    return res.status(400).json({
-      error: "tier must be between 1 and 5",
-    });
+    return res
+      .status(400)
+      .json(validationErrorSingle("tier must be between 1 and 5"));
   }
 
   // For update and delete, starId is required
   if ((auditType === "update" || auditType === "delete") && !starId) {
-    return res.status(400).json({
-      error: `starId is required for ${auditType} audit type`,
-    });
+    return res
+      .status(400)
+      .json(
+        validationErrorSingle(`starId is required for ${auditType} audit type`)
+      );
   }
 
   // For create, starId should be null
   if (auditType === "create" && starId) {
-    return res.status(400).json({
-      error: "starId should not be provided for create audit type",
-    });
+    return res
+      .status(400)
+      .json(
+        validationErrorSingle(
+          "starId should not be provided for create audit type"
+        )
+      );
   }
 
   try {
@@ -100,9 +116,9 @@ router.put("/audit/:id/approve", requireAuth, async (req, res) => {
     }
 
     if (audit.status !== "pending") {
-      return res.status(400).json({
-        error: `Audit is already ${audit.status}`,
-      });
+      return res
+        .status(400)
+        .json(validationErrorSingle(`Audit is already ${audit.status}`));
     }
 
     // Handle approval based on auditType
@@ -198,9 +214,9 @@ router.put("/audit/:id/reject", requireAuth, async (req, res) => {
     }
 
     if (audit.status !== "pending") {
-      return res.status(400).json({
-        error: `Audit is already ${audit.status}`,
-      });
+      return res
+        .status(400)
+        .json(validationErrorSingle(`Audit is already ${audit.status}`));
     }
 
     // Update audit status to rejected

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { login } from "../utils/auth";
+import { getErrorMessage } from "../utils/errorHandler";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
@@ -28,7 +29,8 @@ export default function LoginPage() {
       setUnverifiedEmail(res.email);
       setError(null);
     } else {
-      setError(res.error || "Login failed");
+      const errorMessage = getErrorMessage(res);
+      setError(errorMessage);
     }
   }
 
@@ -88,8 +90,9 @@ export default function LoginPage() {
         router.push("/");
         router.refresh();
       } else {
-        toast.error(data.error || "Invalid OTP", { id: toastId });
-        setError(data.error || "Invalid OTP");
+        const errorMessage = getErrorMessage(data);
+        toast.error(errorMessage, { id: toastId });
+        setError(errorMessage);
       }
     } catch (err) {
       toast.error("Verification failed", { id: toastId });
@@ -127,7 +130,12 @@ export default function LoginPage() {
             <button className="text-white px-4 py-2 rounded-2xl outline-[2px] hover:bg-(--bg-gradient-left) ease-in duration-300 cursor-pointer min-w-[230px]">
               Verify Email
             </button>
-            {error && <div className="text-red-400 text-center">{error}</div>}
+            {error && (
+              <div className="text-red-400 text-center text-sm min-h-[60px] flex items-center justify-center whitespace-pre-line">
+                {error}
+              </div>
+            )}
+            {!error && <div className="min-h-[60px]"></div>}
           </form>
 
           <button
@@ -176,7 +184,12 @@ export default function LoginPage() {
         <button className="text-white px-4 py-2 rounded-2xl outline-[2px] hover:bg-(--bg-gradient-left) ease-in duration-300 cursor-pointer min-w-[230px]">
           Login
         </button>
-        {error && <div className="text-red-400 text-center">{error}</div>}
+        {error && (
+          <div className="text-red-400 text-center text-sm min-h-[60px] flex items-center justify-center whitespace-pre-line">
+            {error}
+          </div>
+        )}
+        {!error && <div className="min-h-[60px]"></div>}
       </form>
       <div className="text-gray-400">
         Don&apos;t have an account?{" "}
