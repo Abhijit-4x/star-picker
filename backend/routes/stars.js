@@ -16,7 +16,7 @@ router.get("/stars", async (req, res) => {
 });
 
 // Get a random star
-router.get("/random-star", getRandomStar);
+router.get("/random-star", requireAuth, getRandomStar);
 
 // Search stars by name (case-insensitive)
 router.get("/stars/search", async (req, res) => {
