@@ -351,4 +351,90 @@ router.get("/me", requireAuth, async (req, res) => {
   }
 });
 
+router.get("/user-stats", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user && req.user.id;
+    if (!userId) return res.status(401).json({ error: "Not authenticated" });
+
+    const Star = require("../models/Star");
+    const StarCache = require("../models/StarCache");
+
+    // Count total stars in database (common to all users)
+    const totalStarsCount = await Star.countDocuments();
+
+    // Count cached stars for the user (filter out null/deleted references)
+    const userCache = await StarCache.findOne({ userId: userId }).populate(
+      "recentStarIds"
+    );
+    const validStars = userCache
+      ? userCache.recentStarIds.filter((star) => star !== null)
+      : [];
+    const cachedStarsCount = validStars.length;
+
+    res.json({
+      totalStars: totalStarsCount,
+      cachedStars: cachedStarsCount,
+    });
+  } catch (err) {
+    logger.error("Get user stats error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/cached-stars", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user && req.user.id;
+    if (!userId) return res.status(401).json({ error: "Not authenticated" });
+
+    const StarCache = require("../models/StarCache");
+
+    // Get user's cache and populate star data
+    const userCache = await StarCache.findOne({ userId: userId }).populate(
+      "recentStarIds",
+      "starName tier"
+    );
+
+    if (!userCache) {
+      return res.json({ cachedStars: [] });
+    }
+
+    // Filter out null/deleted star references
+    const validStars = (userCache.recentStarIds || []).filter(
+      (star) => star !== null
+    );
+
+    res.json({
+      cachedStars: validStars,
+    });
+  } catch (err) {
+    logger.error("Get cached stars error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.delete("/remove-from-cache/:starId", requireAuth, async (req, res) => {
+  try {
+    const userId = req.user && req.user.id;
+    if (!userId) return res.status(401).json({ error: "Not authenticated" });
+
+    const { starId } = req.params;
+    const StarCache = require("../models/StarCache");
+
+    // Remove star from user's cache
+    const result = await StarCache.updateOne(
+      { userId: userId },
+      { $pull: { recentStarIds: starId } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: "Star not found in cache" });
+    }
+
+    res.json({ message: "Star removed from cache successfully" });
+  } catch (err) {
+    logger.error("Remove from cache error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;

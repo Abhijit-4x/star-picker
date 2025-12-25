@@ -46,3 +46,33 @@ export async function getCurrentUser() {
   const data = await res.json();
   return data.user || null;
 }
+
+export async function getUserStats() {
+  const res = await fetch(`${BACKEND_URL}/user-stats`, {
+    credentials: "include",
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data;
+}
+
+export async function getCachedStars() {
+  const res = await fetch(`${BACKEND_URL}/cached-stars`, {
+    credentials: "include",
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data;
+}
+
+export async function removeFromCache(starId) {
+  const res = await fetch(`${BACKEND_URL}/remove-from-cache/${starId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to remove from cache");
+  }
+  return res.json();
+}
