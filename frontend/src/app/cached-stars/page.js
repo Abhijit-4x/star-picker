@@ -53,6 +53,8 @@ export default function CachedStarsPage() {
       await removeFromCache(starId);
       setCachedStars((prev) => prev.filter((star) => star._id !== starId));
       toast.success("Star removed from cache");
+      // Trigger userStats refresh in navbar
+      window.dispatchEvent(new Event("clearUserStats"));
     } catch (err) {
       console.error("Error removing from cache:", err);
       toast.error(err.message || "Failed to remove from cache");
