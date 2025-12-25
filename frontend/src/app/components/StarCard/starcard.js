@@ -16,7 +16,12 @@ import {
   ERROR_MESSAGES,
 } from "@/app/constants/messages";
 
-export default function StarCard({ star, onDelete }) {
+export default function StarCard({
+  star,
+  onDelete,
+  hideEditAudit = false,
+  isCacheView = false,
+}) {
   const starName = star.starName;
   const tier = star.tier;
   const style = convertTierToStyle(tier);
@@ -98,23 +103,32 @@ export default function StarCard({ star, onDelete }) {
   const handleDeleteConfirm = async () => {
     setIsDeleting(true);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/stars/${star._id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
-
-      if (response.ok) {
-        toast.success(SUCCESS_MESSAGES.STAR_DELETED);
-        setShowDeleteConfirm(false);
+      if (isCacheView) {
+        // For cache view, just call the onDelete callback which handles cache removal
         if (onDelete) {
-          onDelete(star._id);
+          await onDelete(star._id);
         }
+        setShowDeleteConfirm(false);
       } else {
-        const data = await response.json();
-        toast.error(data.error || ERROR_MESSAGES.DELETE_FAILED);
+        // For regular view, delete from database
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/stars/${star._id}`,
+          {
+            method: "DELETE",
+            credentials: "include",
+          }
+        );
+
+        if (response.ok) {
+          toast.success(SUCCESS_MESSAGES.STAR_DELETED);
+          setShowDeleteConfirm(false);
+          if (onDelete) {
+            onDelete(star._id);
+          }
+        } else {
+          const data = await response.json();
+          toast.error(data.error || ERROR_MESSAGES.DELETE_FAILED);
+        }
       }
     } catch (error) {
       console.error("Delete error:", error);
@@ -132,24 +146,28 @@ export default function StarCard({ star, onDelete }) {
         <p className="w-12">{stringTier}</p>
         <p className="flex-1 text-center">{starName}</p>
         <div className="flex gap-6 w-24 justify-end">
-          <button
-            onClick={handleEdit}
-            className="cursor-pointer hover:text-amber-300 transition-colors"
-            title="Edit Star"
-          >
-            <SquarePen size={20} />
-          </button>
-          <button
-            onClick={handleAuditClick}
-            className="cursor-pointer hover:text-blue-400 transition-colors"
-            title="Send to Audit"
-          >
-            <Send size={20} />
-          </button>
+          {!hideEditAudit && (
+            <>
+              <button
+                onClick={handleEdit}
+                className="cursor-pointer hover:text-amber-300 transition-colors"
+                title="Edit Star"
+              >
+                <SquarePen size={20} />
+              </button>
+              <button
+                onClick={handleAuditClick}
+                className="cursor-pointer hover:text-blue-400 transition-colors"
+                title="Send to Audit"
+              >
+                <Send size={20} />
+              </button>
+            </>
+          )}
           <button
             onClick={handleDeleteClick}
             className="cursor-pointer hover:text-red-400 transition-colors"
-            title="Delete Star"
+            title={isCacheView ? "Remove from cache" : "Delete Star"}
           >
             <Trash2 size={20} />
           </button>
@@ -161,10 +179,14 @@ export default function StarCard({ star, onDelete }) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-slate-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
             <h3 className="text-xl font-bold text-white mb-4">
-              {CONFIRM_MESSAGES.DELETE_STAR_TITLE}
+              {isCacheView
+                ? "Remove from Cache?"
+                : CONFIRM_MESSAGES.DELETE_STAR_TITLE}
             </h3>
             <p className="text-sm text-gray-300 mb-6">
-              {CONFIRM_MESSAGES.DELETE_STAR}
+              {isCacheView
+                ? "Are you sure you want to remove this star from your cache?"
+                : CONFIRM_MESSAGES.DELETE_STAR}
             </p>
             <p className="text-amber-300 font-bold mb-6 text-center">
               &quot;{starName}&quot;
@@ -182,7 +204,13 @@ export default function StarCard({ star, onDelete }) {
                 className="px-3 py-1.5 text-sm rounded-lg bg-red-600 hover:bg-red-500 text-white transition-colors cursor-pointer disabled:opacity-50"
                 disabled={isDeleting}
               >
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting
+                  ? isCacheView
+                    ? "Removing..."
+                    : "Deleting..."
+                  : isCacheView
+                  ? "Remove"
+                  : "Delete"}
               </button>
             </div>
           </div>

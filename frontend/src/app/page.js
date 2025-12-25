@@ -43,3 +43,4 @@ export default function Home() {
     </ProtectedRoute>
   );
 }
+//TODO: Change to responsive design
