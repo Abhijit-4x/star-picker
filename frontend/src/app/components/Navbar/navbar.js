@@ -32,9 +32,16 @@ export default function Navbar() {
 
   useEffect(() => {
     fetchUser();
-    // Clear user stats when navigating to force refetch on next menu open
-    setUserStats(null);
   }, [pathname]);
+
+  useEffect(() => {
+    // Listen for custom event to clear user stats
+    const handleClearStats = () => {
+      setUserStats(null);
+    };
+    window.addEventListener("clearUserStats", handleClearStats);
+    return () => window.removeEventListener("clearUserStats", handleClearStats);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
