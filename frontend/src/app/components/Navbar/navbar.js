@@ -1,12 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { getCurrentUser, logout } from "../../utils/auth";
+import { getCurrentUser, logout, getUserStats } from "../../utils/auth";
 import { useRouter, usePathname } from "next/navigation";
 import { CircleUserRound } from "lucide-react";
 
 export default function Navbar() {
   const [user, setUser] = useState(null);
+  const [userStats, setUserStats] = useState(null);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -20,16 +21,32 @@ export default function Navbar() {
       .catch(() => {});
   };
 
+  const fetchUserStats = async () => {
+    try {
+      const stats = await getUserStats();
+      setUserStats(stats);
+    } catch (error) {
+      console.error("Failed to fetch user stats:", error);
+    }
+  };
+
   useEffect(() => {
     fetchUser();
   }, [pathname]);
 
   useEffect(() => {
+    // Listen for custom event to clear user stats
+    const handleClearStats = () => {
+      setUserStats(null);
+    };
+    window.addEventListener("clearUserStats", handleClearStats);
+    return () => window.removeEventListener("clearUserStats", handleClearStats);
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setShowAccountMenu(false);
-        //TODO:show total star count and cached star count, after making the cache array user specific and then allow user to
-        //view their cached stars on a separate page
         //TODO: for admin users, show an option to view all users details.
       }
     };
@@ -37,10 +54,18 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleAccountMenuClick = () => {
+    setShowAccountMenu(!showAccountMenu);
+    if (!showAccountMenu) {
+      fetchUserStats();
+    }
+  };
+
   async function handleLogout() {
     await logout();
     setUser(null);
     setShowAccountMenu(false);
+    setUserStats(null);
     router.push("/login");
     router.refresh();
   }
@@ -73,18 +98,45 @@ export default function Navbar() {
         {user ? (
           <div className="relative" ref={menuRef}>
             <button
-              onClick={() => setShowAccountMenu(!showAccountMenu)}
+              onClick={handleAccountMenuClick}
               className="p-2 rounded hover:text-amber-300 cursor-pointer"
               title="Account"
             >
               <CircleUserRound className="w-8 h-8" />
             </button>
             {showAccountMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-slate-800 rounded-md shadow-lg py-2 z-50">
+              <div className="absolute right-0 mt-2 w-56 bg-slate-800 rounded-md shadow-lg py-2 z-50">
                 <div className="px-4 py-2 text-sm text-gray-200 border-b border-slate-700">
                   Logged in as{" "}
                   <span className="font-bold">{user.username}</span>
                 </div>
+                {userStats && (
+                  <div className="px-4 py-3 border-b border-slate-700 space-y-2">
+                    <div className="text-sm text-gray-300">
+                      <div>
+                        Total Stars:{" "}
+                        <span className="font-semibold">
+                          {userStats.totalStars}
+                        </span>
+                      </div>
+                      <div>
+                        Cached Stars:{" "}
+                        <span className="font-semibold">
+                          {userStats.cachedStars}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        router.push("/cached-stars");
+                        setShowAccountMenu(false);
+                      }}
+                      className="w-full px-3 py-1 text-sm bg-amber-600 hover:bg-amber-700 rounded transition-colors text-white cursor-pointer"
+                    >
+                      View Cached Stars
+                    </button>
+                  </div>
+                )}
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-2 text-sm hover:bg-slate-700 text-red-400 hover:text-red-300 cursor-pointer"

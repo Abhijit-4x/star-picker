@@ -20,6 +20,8 @@ export default function Home() {
     const data = await res.json();
     setStar(data);
     setLoading(false);
+    // Trigger userStats refresh in navbar since cache was updated
+    window.dispatchEvent(new Event("clearUserStats"));
   };
 
   return (
@@ -43,3 +45,4 @@ export default function Home() {
     </ProtectedRoute>
   );
 }
+//TODO: Change to responsive design
