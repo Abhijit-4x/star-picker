@@ -1,14 +1,25 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export default async function searchStars(searchKey) {
+export default async function searchStars(searchKey, selectedTiers = []) {
   const params = new URLSearchParams();
-  if (searchKey === "" || searchKey === undefined) {
-    console.log(
-      "searchStars called with empty searchKey, returning empty array"
-    );
-    return []; // Return an empty array if searchKey is empty
+
+  // Build query parameters
+  if (searchKey && searchKey.trim() !== "") {
+    params.append("key", searchKey);
   }
-  params.append("key", searchKey);
+
+  if (selectedTiers && selectedTiers.length > 0) {
+    params.append("tier", selectedTiers.join(","));
+  }
+
+  // If both are empty, return empty array (validation should happen in UI)
+  if (!searchKey && (!selectedTiers || selectedTiers.length === 0)) {
+    console.log(
+      "searchStars called with empty searchKey and no tiers, returning empty array"
+    );
+    return []; // Return an empty array if both are empty
+  }
+
   try {
     // Construct the URL with the search query parameter
     const response = await fetch(

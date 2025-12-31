@@ -19,17 +19,41 @@ router.get("/stars", async (req, res) => {
 // Get a random star
 router.get("/random-star", requireAuth, getRandomStar);
 
-// Search stars by name (case-insensitive)
+// Search stars by name and/or tier
 router.get("/stars/search", async (req, res) => {
   const searchKey = req.query.key || "";
-  if (!searchKey || searchKey.trim() === "") {
-    return res.status(400).json({ error: "Search key cannot be empty" });
+  const tierParam = req.query.tier || "";
+
+  // Validation: at least one parameter must be provided
+  if (
+    (!searchKey || searchKey.trim() === "") &&
+    (!tierParam || tierParam.trim() === "")
+  ) {
+    return res
+      .status(400)
+      .json({ error: "Please provide a search key or tier filter" });
   }
 
   try {
-    const results = await Star.find({
-      starName: { $regex: searchKey, $options: "i" }, // "i" = case-insensitive
-    });
+    const query = {};
+
+    // Add name filter if provided
+    if (searchKey && searchKey.trim() !== "") {
+      query.starName = { $regex: searchKey, $options: "i" }; // "i" = case-insensitive
+    }
+
+    // Add tier filter if provided
+    if (tierParam && tierParam.trim() !== "") {
+      const tierValues = tierParam
+        .split(",")
+        .map((t) => parseInt(t.trim()))
+        .filter((t) => !isNaN(t) && t >= 1 && t <= 5);
+      if (tierValues.length > 0) {
+        query.tier = { $in: tierValues };
+      }
+    }
+
+    const results = await Star.find(query);
     res.json(results);
   } catch (err) {
     console.error("Search error:", err);
